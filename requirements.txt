@@ -7,4 +7,3 @@ tqdm
 scipy
 fastdtw
 seaborn
-maze_dataset
