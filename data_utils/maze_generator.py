@@ -44,7 +44,7 @@ parser.add_argument("--quiet", "-q", help="Quiet mode, no output", action="store
 # Parameters for Icons
 # =========================================================================
 parser.add_argument("--icon_origin", type=str, help="Origin icon file path", default=None)
-parser.add_argument("--icon_target", type=str, help="Target icon file path", default="icons/red_circle.png")
+parser.add_argument("--icon_target", type=str, help="Target icon file path", default="dataset_icons/red_circle.png")
 parser.add_argument("--icon_agent", type=str, help="Agent icon file path directory", default="dataset_icons/train")
 parser.add_argument("--icon_end", type=str, help="End icon file path", default=None)
 parser.add_argument("--file-prefix", "-p", type=str, default="maze", help="(Optional) File prefix for output files")
@@ -163,28 +163,6 @@ def export_mp4(m, icon_path_set, output_file, fps=15):
         imageio.mimsave(output_file, images, fps=fps)
 
     create_video(frames_video, f'{output_dir}/{output_file}.mp4', fps=fps)
-
-
-def export_spatial_condition(m, icon_path_set, output_file):
-    """
-    Generate reference image for Channel Injection (_icon.png)
-    Agent only, white background.
-    """
-    mp = MazePlot(m, icon_path_set=icon_path_set)
-    
-    frames = mp.plot_continuous(
-        frames_num=1,
-        hide_agent=False, 
-        only_agent=True,
-        plain=True
-    )
-    
-    frames[0].canvas.draw()
-    img_rgb = np.array(frames[0].canvas.renderer.buffer_rgba())[:, :, :3]
-    plt.close(frames[0])
-    
-    img_bgr = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(f'{output_dir}/{output_file}_icon.png', img_bgr)
     
 def process_single_maze(i, maze):
     # Reset random seed for multiprocessing
@@ -204,11 +182,8 @@ def process_single_maze(i, maze):
     
     # 4. Export video and first frame
     export_mp4(maze, current_icon_path_set, video_filename, fps=15)
-    
-    # 5. Export Spatial Condition
-    export_spatial_condition(maze, current_icon_path_set, video_filename)
 
-    # 6. RETURN Metadata (Do not write to file here)
+    # 5. RETURN Metadata (Do not write to file here)
     # Convert numpy array to list for JSON serialization compatibility
     solution_py = np.array(maze.solution).tolist()
     
@@ -237,7 +212,7 @@ if __name__ == '__main__':
 
     results = []
 
-    with ProcessPoolExecutor(max_workers=32) as executor:
+    with ProcessPoolExecutor(max_workers=16) as executor:
         for res in tqdm(executor.map(task_wrapper, tasks), total=len(tasks), desc="Generating"):
             results.append(res)
 
