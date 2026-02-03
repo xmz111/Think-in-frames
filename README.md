@@ -1,4 +1,13 @@
 # Think-in-frames
+## Environment
+```
+git clone https://github.com/xmz111/Think-in-frames
+cd Think-in-frames
+conda create -n think_in_frames python=3.12 -c conda-forge -y
+conda activate think_in_frames
+pip install -r requirements.txt
+pip install -e maze-dataset
+```
 ## Data Generation
 ```
 bash data_utils/data_gen_train.sh
